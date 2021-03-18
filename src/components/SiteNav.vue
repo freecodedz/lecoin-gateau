@@ -1,6 +1,5 @@
 <template>
-  <header>
-    <section>
+  <header class="mb-4">
       <nav class="navbar" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
             <router-link class="navbar-item" to="/">
@@ -52,7 +51,6 @@
         </div>
 
       </nav>
-    </section>
   </header>
 </template>
 
@@ -61,15 +59,15 @@ export default {
 
   computed: {
     userProfile(){
-      return this.$store.state.userProfile;
+      return this.$store.state.account.userProfile;
     },
     nameInitial() {
       if(this.userProfile && this.userProfile.name){
-      return this.$store.state.userProfile.name.charAt(0).toUpperCase();
+        return this.$store.state.account.userProfile.name.charAt(0).toUpperCase();
+      }
+      return null;
+      }
     }
-    return null;
-    }
-  }
 
 
 }

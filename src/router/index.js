@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import Home from '../views/Home.vue'
 import Dashboard from '../views/Dashboard.vue'
 import Login from '../views/Login.vue'
 import Settings from '../views/Settings.vue'
@@ -11,6 +12,13 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
+    name: 'Home', component: Home,
+    meta: {
+      requiresAuth: false
+    }
+  },
+  {
+    path: '/dashboard',
     name: 'Dashboard',
     component: Dashboard,
     meta: {
@@ -24,20 +32,20 @@ const routes = [
   },
   {
     path: '/settings',
-    name: 'settings',
-    component: Settings,
+    name: 'settings', component: Settings,
     meta: {
       requiresAuth: true
     }
   },
   {
     path: '/profile',
-    name: 'profile',
-    component: Profile,
+    name: 'profile', component: Profile,
     meta: {
       requiresAuth: true
     }
-  }
+  },
+  // otherwise redirect to home
+  //  { path: '*', redirect: '/' }
 ]
 
 const router = new VueRouter({
@@ -47,14 +55,14 @@ const router = new VueRouter({
 })
 
 // navigation guard to check for logged in users
-//router.beforeEach((to, from, next) => {
-  //const requiresAuth = to.matched.some(x => x.meta.requiresAuth)
+router.beforeEach((to, from, next) => {
+  const requiresAuth = to.matched.some(x => x.meta.requiresAuth);
 
-  //if (requiresAuth && !auth.currentUser) {
-    //next('/login')
-  //} else {
-  //  next()
-//  }
-//})
+  if (requiresAuth && !auth.currentUser) {
+      next('/login');
+  }
+  next();
+
+})
 
 export default router

@@ -3,7 +3,7 @@ require('./assets/main.scss');
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
-import store from './store'
+import {store} from './store'
 import { auth } from './firebase'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons'
@@ -22,7 +22,8 @@ Vue.component('font-awesome-icon', FontAwesomeIcon)
    router:router,
    el: '#app',
    render: h => h(App)
- })
+ });
+ console.log(store);
 // auth.onAuthStateChanged(user => {
   // if (!app) {
     // app = new Vue({

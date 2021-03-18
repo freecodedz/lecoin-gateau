@@ -1,11 +1,17 @@
 <template>
   <div id="login-signup">
-    <div id="login" v-if="isRegistred">
-      <div class="columns is-centered">
-        <div class="column is-one-third ">
+    <div class="columns is-centered" id="login" v-if="isRegistred">
+      <div class="column is-one-third ">
+        <form class="box">
+          <div v-if="loginFormErrors.length" class="notification content is-light is-danger">
+             <b>Please correct the following error(s):</b>
+             <ul>
+               <li v-for="error in loginFormErrors">{{ error }}</li>
+             </ul>
+          </div>
           <div class="field">
             <p class="control has-icons-left has-icons-right">
-              <input v-model="loginForm.email" class="input" type="email" placeholder="Email">
+              <input v-model="loginForm.email" class="input" type="email" placeholder="Email" id="login-email">
               <span class="icon is-small is-left">
                 <font-awesome-icon icon="envelope" />
               </span>
@@ -14,47 +20,36 @@
               </span>
             </p>
           </div>
-        </div>
-      </div>
-      <div class="field">
-        <div class="columns is-centered">
-          <div class="column is-one-third">
+          <div class="field">
             <p class="control has-icons-left">
-              <input v-model="loginForm.password" class="input" type="password" placeholder="Password">
+              <input v-model="loginForm.password" class="input" type="password" placeholder="Password" id="login-password">
               <span class="icon is-small is-left">
                 <font-awesome-icon icon="lock" />
               </span>
             </p>
           </diV>
-        </div>
-      </div>
-      <div class="field">
-        <div class="columns is-centered">
-          <div class="column is-one-third">
-            <button class="button is-success" v-on:click.prevent="login">
-              Login
-            </button>
+          <div class="field">
+              <button class="button is-success" @click.prevent="login()" id="login-button">
+                Login
+              </button>
           </div>
-        </div>
-      </div>
-      <div class="columns is-centered">
-        <div class="column is-one-third ">
-          <a class="is-size-7" v-on:click="switchForm"><strong>
-            Vous n'êtes pas encore sur Lecoingateau? Inscrivez-vous
-          </strong></a>
-        </div>
+          <div>
+            <a class="is-size-7" @click="toggleForm"><strong>
+              Vous n'êtes pas encore sur Lecoingateau? Inscrivez-vous
+            </strong></a>
+          </div>
+        </form>
       </div>
     </div>
-    <div id="signup" v-if="!isRegistred">
-      <div class="columns is-centered">
+    <div class="columns is-centered" id="signup" v-if="!isRegistred">
         <div class="column is-one-third ">
-          <form  @submit="checkSignupForm">
-           <p v-if="signupFormErrors.length">
+          <form class="box">
+           <div v-if="signupFormErrors.length">
               <b>Please correct the following error(s):</b>
               <ul>
                 <li v-for="error in signupFormErrors">{{ error }}</li>
               </ul>
-           </p>
+           </div>
            <div class="field">
              <label class="label" for="name">Name</label>
              <input v-model.trim="signupForm.name" class="control input" type="text" placeholder="Savvy Apps" id="name" />
@@ -67,7 +62,7 @@
              <label class="label" for="email2">Email</label>
              <div class="control has-icons-left has-icons-right">
                 <div class="control">
-                  <input v-model.trim="signupForm.email" class="input is-danger" type="email" placeholder="you@email.com" >
+                  <input v-model.trim="signupForm.email" class="input is-danger" type="text" placeholder="you@email.com" >
                   <span class="icon is-small is-left">
                     <i class="fas fa-envelope"></i>
                   </span>
@@ -86,19 +81,20 @@
              <label class="label" for="password2">Confirm password</label>
              <input  v-model.trim="signupForm.password2"class="control input" type="password" placeholder="min 6 characters" id="password2" />
            </div>
-           <button v-on:click.prevent="signup()" class="button is-success">Sign Up</button>
+           <button @click.prevent="signup()" class="button is-success">Sign Up</button>
            <div class="extras">
-             <a v-on:click="switchForm">Back to Log In</a>
+             <a v-on:click="toggleForm()">Back to Log In</a>
            </div>
          </form>
        </div>
-      </div>
     </div>
   </div>
 </template>
 
 <script>
 export default {
+
+
 
   data: function(){
     return {
@@ -114,16 +110,19 @@ export default {
         email:'',
         password:''
       },
-      signupFormErrors:[]
+      signupFormErrors:[],
+      loginFormErrors: []
     }
   },
 
   methods:{
-    switchForm: function(){
+    toggleForm: function(){
       this.isRegistred = !this.isRegistred;
     },
+
     login: function(){
-      this.$store.dispatch('login',this.loginForm)
+      this.checkLoginForm();
+      this.$store.dispatch('account/login',this.loginForm);
     },
     signup: function(){
       this.checkSignupForm();
@@ -165,6 +164,26 @@ export default {
         this.signupFormErrors.push( "The passwords must be the same.");
       }
     },
+
+    checkLoginForm: function(e){
+
+      this.loginFormErrors = [];
+
+      if (this.loginForm.email && this.loginForm.password && this.validEmail(this.loginForm.email)) {
+        return true;
+      }
+
+      if (!this.loginForm.email) {
+        this.loginFormErrors.push('Email required.');
+      }
+      else if (!this.validEmail(this.loginForm.email)){
+        this.loginFormErrors.push('Valid email required');
+      }
+      if (!this.loginForm.password) {
+        this.loginFormErrors.push('Password is required.');
+      }
+
+    },
     validEmail: function (email) {
      var regex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
      return regex.test(email);
@@ -175,8 +194,9 @@ export default {
   },
   computed: {
     isConnected(){
-      return store.state.isConnected;
+      return this.$store.state.account.loggedIn && this.$store.state.account.userProfile != null;
     }
+
   }
 
 }
